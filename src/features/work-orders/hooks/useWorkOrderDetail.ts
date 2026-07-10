@@ -1,0 +1,237 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { notificationService } from '@/shared/services/notificationService';
+import { workOrderService as defaultService } from '../services/workOrderService';
+import { generateOSPDF } from '@/utils/generateOSPDF';
+import { buildOSPDFData } from '@/utils/buildOSPDFData';
+
+export interface WorkOrderDetailData {
+  id: string;
+  numero_os: string;
+  data_emissao: string;
+  data_programada: string | null;
+  hora_inicio: string | null;
+  hora_fim: string | null;
+  site_name: string | null;
+  work_type: string[];
+  servico_solicitado: string | null;
+  inspetor_responsavel: string | null;
+  equipe: string[] | null;
+  notes: string | null;
+  aceite_tecnico?: string;
+  motivo_recusa?: string;
+  tickets: {
+    id: string;
+    titulo: string;
+    descricao: string;
+    status: string;
+    prioridade: string;
+    endereco_servico: string;
+    data_inicio_execucao: string | null;
+    data_conclusao: string | null;
+    prestadores?: { id: string; nome: string } | null;
+    clientes: {
+      empresa: string;
+      endereco: string;
+      cidade: string;
+      estado: string;
+      ufv_solarz: string | null;
+      prioridade?: number | null;
+    };
+  };
+  rme_relatorios: Array<{ id: string; status: string; created_at: string; data_execucao?: string | null; start_time?: string | null; end_time?: string | null }>;
+}
+
+export const useWorkOrderDetail = (service = defaultService) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const { handleError } = useErrorHandler();
+
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [workOrder, setWorkOrder] = useState<WorkOrderDetailData | null>(null);
+  const [isRmeResponsavel, setIsRmeResponsavel] = useState(false);
+
+  const canManageOS = profile?.role === 'admin' || profile?.role === 'engenharia' || profile?.role === 'supervisao';
+  // Staff podem criar/editar RME para qualquer OS. Técnicos só se forem o responsável do ticket.
+  // Isso evita retrabalho: técnicos não-responsáveis nem iniciam o RME.
+  const canCreateRME = canManageOS || (profile?.role === 'tecnico_campo' && isRmeResponsavel);
+
+  const loadResponsavel = async (ticketId: string) => {
+    try {
+      const { data } = await supabase.rpc('get_ticket_rme_group_context', { p_ticket_id: ticketId });
+      const responsavelEmail = (data as any)?.[0]?.responsavel_email as string | undefined;
+      setIsRmeResponsavel(
+        !!responsavelEmail && !!profile?.email && responsavelEmail.toLowerCase() === profile.email.toLowerCase()
+      );
+    } catch (e) {
+      console.warn('loadResponsavel failed', e);
+      setIsRmeResponsavel(false);
+    }
+  };
+
+  const loadWorkOrder = async () => {
+    try {
+      setLoading(true);
+      const data = await service.loadDetail(id!);
+      if (!data) { toast.error('OS não encontrada'); navigate('/work-orders'); return; }
+      setWorkOrder(data);
+      if (data.tickets?.id) await loadResponsavel(data.tickets.id);
+    } catch (error) {
+      handleError(error, { fallbackMessage: 'Erro ao carregar OS' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { if (id) loadWorkOrder(); }, [id]);
+
+  const getCurrentStatus = (): string => {
+    if (!workOrder) return 'aberta';
+    const s = workOrder.tickets.status;
+    if (s === 'concluido') return 'concluida';
+    if (s === 'em_execucao') {
+      // Qualquer estado do RME que não seja "aprovado" mantém a OS como Aguardando RME.
+      // Só volta para "em_execucao" puro se ainda não houver RME criado.
+      const rmeStatus = workOrder.rme_relatorios[0]?.status;
+      if (!rmeStatus) return 'em_execucao';
+      return rmeStatus === 'aprovado' ? 'em_execucao' : 'aguardando_rme';
+    }
+    if (s === 'cancelado') return 'cancelada';
+    return 'aberta';
+  };
+
+  const rmeStatus = workOrder?.rme_relatorios?.[0]?.status as
+    | 'rascunho' | 'pendente' | 'aprovado' | 'rejeitado' | undefined;
+  const hasRME = !!rmeStatus;
+  // Approved RME unlocks OS completion. Pendente/rejeitado are NOT enough.
+  const isRMEApproved = rmeStatus === 'aprovado';
+  // True whenever the technician is no longer allowed to edit the RME.
+  const isRMELocked = rmeStatus === 'pendente' || rmeStatus === 'aprovado';
+  // Backwards-compat: legacy callers used `isRMECompleted` to mean "ready to finish OS".
+  const isRMECompleted = isRMEApproved;
+
+  const handleStartExecution = async () => {
+    if (!workOrder) return;
+    setActionLoading(true);
+    try {
+      await service.startExecution(workOrder.tickets.id);
+      toast.success('Execução iniciada!');
+      loadWorkOrder();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCompleteOS = async () => {
+    if (!workOrder || !isRMEApproved) {
+      toast.error('A OS só pode ser concluída após aprovação do RME pelo avaliador.');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await service.completeOS(workOrder.tickets.id);
+      toast.success('OS concluída!');
+      loadWorkOrder();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!workOrder) return;
+    setSendingEmail(true);
+    try {
+      await notificationService.sendCalendarInvite(workOrder.id, 'create');
+      toast.success('Email enviado com sucesso!');
+    } catch (error) {
+      handleError(error, { fallbackMessage: 'Erro ao enviar email' });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!workOrder) return;
+    try {
+      const pdfData = await buildOSPDFData({
+        os_id: workOrder.id,
+        numero_os: workOrder.numero_os,
+        data_programada: workOrder.data_programada,
+        hora_inicio: workOrder.hora_inicio,
+        servico_solicitado: workOrder.servico_solicitado,
+        tipo_trabalho: (workOrder.work_type as string[]) || [],
+        ticket_id: workOrder.tickets.id,
+        cliente: {
+          empresa: workOrder.tickets.clientes?.empresa,
+          endereco: workOrder.tickets.clientes?.endereco,
+          cidade: workOrder.tickets.clientes?.cidade,
+          estado: workOrder.tickets.clientes?.estado,
+          ufv_solarz: workOrder.tickets.clientes?.ufv_solarz,
+        },
+        ticket: {
+          titulo: workOrder.tickets.titulo,
+          descricao: workOrder.tickets.descricao,
+          endereco_servico: workOrder.tickets.endereco_servico,
+          tecnico_responsavel_id: (workOrder.tickets as any).tecnico_responsavel_id,
+        },
+      });
+      const pdfBlob = await generateOSPDF(pdfData);
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `OS_${workOrder.numero_os}.pdf`; a.click();
+      URL.revokeObjectURL(url);
+      toast.success('PDF baixado!');
+    } catch (error) {
+      handleError(error, { fallbackMessage: 'Erro ao gerar PDF' });
+    }
+  };
+
+  const handleCreateRME = async () => {
+    if (!workOrder) return;
+    // Bloqueia início: técnicos não-responsáveis não podem nem abrir o wizard.
+    // Visualizar RME existente (já criado pelo responsável) continua liberado.
+    if (!hasRME && !canCreateRME) {
+      toast.error('Apenas o técnico responsável pode iniciar o preenchimento do RME.');
+      return;
+    }
+    if (hasRME) {
+      navigate(`/rme-wizard/${workOrder.rme_relatorios[0].id}`);
+      return;
+    }
+    // GUARD (BUG 2): apenas 1 RME por ticket. Se uma OS-irmã já tem RME,
+    // redireciona para ele em vez de criar duplicata.
+    const { data: ticketRme } = await supabase
+      .from('rme_relatorios')
+      .select('id')
+      .eq('ticket_id', workOrder.tickets.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (ticketRme?.id) {
+      toast.info('Este ticket já possui um RME. Apenas um RME por ticket é permitido.');
+      navigate(`/rme-wizard/${ticketRme.id}`);
+      return;
+    }
+    navigate(`/rme-wizard/new?os=${workOrder.id}`);
+  };
+
+  return {
+    workOrder, loading, actionLoading, sendingEmail, canManageOS, canCreateRME,
+    isRmeResponsavel,
+    hasRME, isRMECompleted, isRMEApproved, isRMELocked, rmeStatus,
+    currentStatus: getCurrentStatus(),
+    handleStartExecution, handleCompleteOS, handleSendEmail, handleDownloadPDF, handleCreateRME,
+    navigate,
+  };
+};

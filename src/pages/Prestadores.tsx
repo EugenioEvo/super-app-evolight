@@ -1,0 +1,420 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, Plus, Search, Mail, Phone, MapPin, Edit, Trash2, Eye, Wrench, CheckCircle, XCircle, Clock, ExternalLink } from "lucide-react";
+import {
+  useProviderData,
+  useProviderMutations,
+  especialidadesOptions,
+  certificacoesOptions,
+  experienciaOptions,
+} from "@/features/providers";
+import { ApprovePrestadorDialog } from "@/features/providers/components/ApprovePrestadorDialog";
+
+const CATEGORIA_LABELS: Record<string, string> = {
+  tecnico: "Técnico de Campo (O&M)",
+  supervisao: "Supervisor (O&M)",
+  lider: "Líder (O&M)",
+  eletromecanico: "Eletromecânico (EPC)",
+  sup_eletromecanico: "Sup. Eletromecânico (EPC)",
+  lider_eletromecanico: "Líder Eletromecânico (EPC)",
+};
+
+const getCategoriaColor = (categoria: string) => {
+  switch (categoria) {
+    case "supervisao":
+    case "lider":
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300";
+    case "tecnico":
+      return "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300";
+    case "eletromecanico":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300";
+    case "sup_eletromecanico":
+    case "lider_eletromecanico":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+};
+
+const getCategoriaIcon = (categoria: string) => {
+  switch (categoria) {
+    case "supervisao":
+    case "lider":
+    case "sup_eletromecanico":
+    case "lider_eletromecanico":
+      return Eye;
+    case "tecnico":
+    case "eletromecanico":
+      return Wrench;
+    default:
+      return Users;
+  }
+};
+
+const Prestadores = () => {
+  const {
+    loading, searchTerm, setSearchTerm, activeTab, setActiveTab,
+    pendingPrestadores, rejectedPrestadores, filteredPrestadores, categoryCounts, reload,
+  } = useProviderData();
+
+  const {
+    form, isDialogOpen, setIsDialogOpen, editingPrestador,
+    onSubmit, handleEdit, handleDelete, handleReject, openNew,
+  } = useProviderMutations(reload);
+
+  const [approving, setApproving] = useState<any>(null);
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Carregando prestadores...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Prestadores de Serviço</h1>
+          <p className="text-muted-foreground">Gerencie a equipe técnica</p>
+        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-solar shadow-solar" onClick={openNew}>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Prestador
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingPrestador ? "Editar Prestador" : "Novo Prestador"}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="nome" render={({ field }) => (
+                    <FormItem><FormLabel>Nome Completo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="cpf" render={({ field }) => (
+                    <FormItem><FormLabel>CPF</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="telefone" render={({ field }) => (
+                    <FormItem><FormLabel>Telefone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="endereco" render={({ field }) => (
+                  <FormItem><FormLabel>Endereço</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField control={form.control} name="cidade" render={({ field }) => (
+                    <FormItem><FormLabel>Cidade</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="estado" render={({ field }) => (
+                    <FormItem><FormLabel>Estado</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="cep" render={({ field }) => (
+                    <FormItem><FormLabel>CEP</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="categoria" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="tecnico">Técnico de Campo (O&amp;M)</SelectItem>
+                          <SelectItem value="supervisao">Supervisor (O&amp;M)</SelectItem>
+                          <SelectItem value="lider">Líder (O&amp;M)</SelectItem>
+                          <SelectItem value="eletromecanico">Eletromecânico (EPC)</SelectItem>
+                          <SelectItem value="sup_eletromecanico">Sup. Eletromecânico (EPC)</SelectItem>
+                          <SelectItem value="lider_eletromecanico">Líder Eletromecânico (EPC)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="experiencia" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Experiência</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Selecione a experiência" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {experienciaOptions.map((exp) => (
+                            <SelectItem key={exp} value={exp}>{exp}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="especialidades" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Especialidades</FormLabel>
+                    <Select onValueChange={(value) => {
+                      const currentValues = field.value || [];
+                      if (!currentValues.includes(value)) field.onChange([...currentValues, value]);
+                    }}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Selecione especialidades" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {especialidadesOptions.map((esp) => (
+                          <SelectItem key={esp} value={esp}>{esp}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {field.value?.map((esp) => (
+                        <Badge key={esp} variant="secondary" className="cursor-pointer" onClick={() => field.onChange(field.value?.filter((e) => e !== esp))}>
+                          {esp} ✕
+                        </Badge>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="certificacoes" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Certificações</FormLabel>
+                    <Select onValueChange={(value) => {
+                      const currentValues = field.value || [];
+                      if (!currentValues.includes(value)) field.onChange([...currentValues, value]);
+                    }}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Selecione certificações" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {certificacoesOptions.map((cert) => (
+                          <SelectItem key={cert} value={cert}>{cert}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {field.value?.map((cert) => (
+                        <Badge key={cert} variant="secondary" className="cursor-pointer" onClick={() => field.onChange(field.value?.filter((c) => c !== cert))}>
+                          {cert} ✕
+                        </Badge>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="data_admissao" render={({ field }) => (
+                  <FormItem><FormLabel>Data de Admissão</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="bg-gradient-solar">
+                    {editingPrestador ? "Atualizar" : "Salvar"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => { setIsDialogOpen(false); }}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Buscar prestadores..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground flex items-start gap-2">
+        <ExternalLink className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <span>
+          Cadastros públicos chegam aqui via página de candidatura: <code className="px-1 bg-muted rounded">{window.location.origin}/candidatar-se</code>.
+          Para gerenciar contas internas (admin, engenharia), use <strong>Cadastros → Usuários</strong>.
+        </span>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="flex w-full flex-wrap h-auto">
+          <TabsTrigger value="pendentes" className="relative">
+            Pendentes ({categoryCounts.pendentes})
+            {categoryCounts.pendentes > 0 && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive animate-pulse" />}
+          </TabsTrigger>
+          <TabsTrigger value="todos">Aprovados ({categoryCounts.todos})</TabsTrigger>
+          <TabsTrigger value="tecnico">Técnicos O&amp;M ({categoryCounts.tecnico})</TabsTrigger>
+          <TabsTrigger value="supervisao">Supervisores O&amp;M ({categoryCounts.supervisao})</TabsTrigger>
+          <TabsTrigger value="lider">Líderes O&amp;M ({categoryCounts.lider})</TabsTrigger>
+          <TabsTrigger value="eletromecanico">Eletromec. EPC ({categoryCounts.eletromecanico})</TabsTrigger>
+          <TabsTrigger value="sup_eletromecanico">Sup. Eletromec. EPC ({categoryCounts.sup_eletromecanico})</TabsTrigger>
+          <TabsTrigger value="lider_eletromecanico">Líder Eletromec. EPC ({categoryCounts.lider_eletromecanico})</TabsTrigger>
+          <TabsTrigger value="rejeitados">Rejeitados ({categoryCounts.rejeitados})</TabsTrigger>
+        </TabsList>
+
+        {activeTab === 'pendentes' && (
+          <div className="mt-6 grid gap-4">
+            {pendingPrestadores.length === 0 ? (
+              <Card className="p-6 text-center">
+                <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Nenhum cadastro pendente</h3>
+                <p className="text-muted-foreground">Todos os prestadores foram aprovados.</p>
+              </Card>
+            ) : (
+              pendingPrestadores.map((prestador) => (
+                <Card key={prestador.id} className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/40">
+                          <Clock className="h-5 w-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-semibold">{prestador.nome}</CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="h-4 w-4" />{prestador.email}
+                            {prestador.telefone && (<><span className="mx-1">·</span><Phone className="h-4 w-4" />{prestador.telefone}</>)}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-400">Pendente</Badge>
+                        <Button size="sm" variant="default" onClick={() => setApproving(prestador)}>
+                          <CheckCircle className="h-4 w-4 mr-1" />Aprovar
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleReject(prestador.id)}>
+                          <XCircle className="h-4 w-4 mr-1" />Rejeitar
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  {prestador.especialidades && Array.isArray(prestador.especialidades) && prestador.especialidades.length > 0 && (
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-1">
+                        {prestador.especialidades.map((esp: string) => (
+                          <Badge key={esp} variant="secondary" className="text-xs">{esp}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              ))
+            )}
+          </div>
+        )}
+
+        <TabsContent value={activeTab} className="mt-6">
+          <div className="grid gap-4">
+            {filteredPrestadores.map((prestador) => {
+              const CategoriaIcon = getCategoriaIcon(prestador.categoria);
+              return (
+                <Card key={prestador.id} className="border-border/50 shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <CategoriaIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-semibold">{prestador.nome}</CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="h-4 w-4" />{prestador.email}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getCategoriaColor(prestador.categoria)}>
+                          {CATEGORIA_LABELS[prestador.categoria] ?? prestador.categoria}
+                        </Badge>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(prestador)}><Edit className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(prestador.id)}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><span>{prestador.telefone}</span></div>
+                      <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /><span>{prestador.cidade}, {prestador.estado}</span></div>
+                      <div><span className="font-medium">Experiência:</span> {prestador.experiencia} anos</div>
+                      <div><span className="font-medium">Admissão:</span> {prestador.data_admissao ? new Date(prestador.data_admissao).toLocaleDateString() : '-'}</div>
+                    </div>
+                    {prestador.especialidades && (
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <div className="text-sm"><span className="font-medium text-muted-foreground">Especialidades:</span> {prestador.especialidades}</div>
+                      </div>
+                    )}
+                    {prestador.certificacoes && (
+                      <div className="mt-2">
+                        <div className="text-sm"><span className="font-medium text-muted-foreground">Certificações:</span> {prestador.certificacoes}</div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+            {filteredPrestadores.length === 0 && (
+              <Card className="p-6 text-center">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Nenhum prestador encontrado</h3>
+                <p className="text-muted-foreground">
+                  {searchTerm ? "Ajuste sua busca ou " : ""}Adicione um novo prestador para começar.
+                </p>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        {activeTab === 'rejeitados' && (
+          <div className="mt-6 grid gap-4">
+            {rejectedPrestadores.length === 0 ? (
+              <Card className="p-6 text-center text-muted-foreground">Nenhuma candidatura rejeitada.</Card>
+            ) : rejectedPrestadores.map(p => (
+              <Card key={p.id} className="opacity-70">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">{p.nome}</CardTitle>
+                      <div className="text-sm text-muted-foreground">{p.email}</div>
+                    </div>
+                    <Badge variant="outline" className="border-destructive text-destructive">Rejeitado</Badge>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        )}
+      </Tabs>
+
+      <ApprovePrestadorDialog
+        open={!!approving}
+        onOpenChange={(o) => !o && setApproving(null)}
+        prestador={approving}
+        onApproved={reload}
+      />
+    </div>
+  );
+};
+
+export default Prestadores;
