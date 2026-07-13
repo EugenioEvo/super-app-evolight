@@ -23,7 +23,7 @@ import MinhasOS from "./pages/MinhasOS";
 import MinhasDevolucoes from "./pages/MinhasDevolucoes";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Navigate, Outlet, useSearchParams } from "react-router-dom";
 import Relatorios from "./pages/Relatorios";
 import GerenciarRME from "./pages/GerenciarRME";
 import DashboardPresenca from "./pages/DashboardPresenca";
@@ -48,6 +48,32 @@ import RDOWizard from "./pages/RDOWizard";
 import GerenciarRDO from "./pages/GerenciarRDO";
 import DashboardRDO from "./pages/DashboardRDO";
 import PublicObraView from "./pages/PublicObraView";
+import { lazy, Suspense } from "react";
+import { EnergyProvider } from "@/features/billing/context/EnergyContext";
+
+// Módulo de Faturamento GD (transplantado do energy-insights) — lazy loaded
+const BillingExecutiveDashboard = lazy(() => import("./features/billing/pages/ExecutiveDashboard"));
+const BillingEnergiaFatura = lazy(() => import("./features/billing/pages/EnergiaFatura"));
+const BillingSolar = lazy(() => import("./features/billing/pages/Solar"));
+const BillingAssinatura = lazy(() => import("./features/billing/pages/Assinatura"));
+const BillingDashboardGerador = lazy(() => import("./features/billing/pages/DashboardGerador"));
+const BillingLancarDados = lazy(() => import("./features/billing/pages/LancarDados"));
+const BillingClientes = lazy(() => import("./features/billing/pages/BillingClientes"));
+const BillingGerenciarFaturas = lazy(() => import("./features/billing/pages/GerenciarFaturas"));
+const BillingUsinas = lazy(() => import("./features/billing/pages/BillingUsinas"));
+const BillingTarifas = lazy(() => import("./features/billing/pages/Tarifas"));
+
+const BillingSuspense = ({ children }: { children: React.ReactNode }) => (
+  <Suspense
+    fallback={
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+      </div>
+    }
+  >
+    {children}
+  </Suspense>
+);
 
 // Legacy /rme route → redirects to the unified Wizard, preserving ?os=
 const LegacyRMERedirect = () => {
@@ -225,6 +251,65 @@ const App = () => (
                                 <AuditLogs />
                               </ProtectedRoute>
                             } />
+                            {/* Faturamento GD (energy-insights) */}
+                            <Route path="/billing" element={
+                              <EnergyProvider>
+                                <BillingSuspense>
+                                  <Outlet />
+                                </BillingSuspense>
+                              </EnergyProvider>
+                            }>
+                              <Route index element={
+                                <ProtectedRoute roles={['admin', 'cliente', 'gerador']}>
+                                  <BillingExecutiveDashboard />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="energia" element={
+                                <ProtectedRoute roles={['admin', 'cliente', 'gerador']}>
+                                  <BillingEnergiaFatura />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="solar" element={
+                                <ProtectedRoute roles={['admin', 'cliente', 'gerador']}>
+                                  <BillingSolar />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="assinatura" element={
+                                <ProtectedRoute roles={['admin', 'cliente', 'gerador']}>
+                                  <BillingAssinatura />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="gerador" element={
+                                <ProtectedRoute roles={['admin', 'cliente', 'gerador']}>
+                                  <BillingDashboardGerador />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="admin/lancar" element={
+                                <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                  <BillingLancarDados />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="admin/clientes" element={
+                                <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                  <BillingClientes />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="admin/faturas" element={
+                                <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                  <BillingGerenciarFaturas />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="admin/usinas" element={
+                                <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                  <BillingUsinas />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="admin/tarifas" element={
+                                <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                  <BillingTarifas />
+                                </ProtectedRoute>
+                              } />
+                            </Route>
                             <Route path="/visualizar-os/:id" element={<VisualizarOS />} />
                             <Route path="/work-orders" element={<WorkOrders />} />
                             <Route path="/work-orders/new" element={<Navigate to="/work-orders" replace />} />

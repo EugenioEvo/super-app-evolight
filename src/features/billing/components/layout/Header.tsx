@@ -1,0 +1,117 @@
+import { Bell, Download, Calendar, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useEnergy } from '@/features/billing/context/EnergyContext';
+import { useExportPDF } from '@/features/billing/hooks/useExportPDF';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { getMonthName } from '@/lib/billing/format';
+
+interface HeaderProps {
+  title: string;
+  subtitle?: string;
+}
+
+export function Header({ title, subtitle }: HeaderProps) {
+  const { mesAtual, setMesAtual, faturas, kpis, cliente, unidadeConsumidora } = useEnergy();
+  const { exportToPDF, isExporting } = useExportPDF();
+  
+  const mesesDisponiveis = [...new Set(faturas.map(f => f.mes_ref))].sort().reverse();
+  const alertCount = kpis.alertas.filter(a => a.severidade !== 'info').length;
+
+  const mesFormatado = (() => {
+    if (!mesAtual) return '';
+    const [year, month] = mesAtual.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  })();
+
+  const handleExportPDF = async () => {
+    await exportToPDF('dashboard-content', `relatorio-executivo-${mesAtual}.pdf`, {
+      companyName: 'WeGen',
+      reportTitle: 'Relatório Executivo de Energia',
+      mesRef: mesFormatado,
+      // Dados do cliente
+      clienteNome: cliente?.nome || 'Cliente não informado',
+      clienteCNPJ: cliente?.cnpj || '-',
+      clienteEmail: cliente?.email || '-',
+      clienteTelefone: cliente?.telefone || '-',
+      // Dados da UC
+      ucNumero: unidadeConsumidora?.numero || '-',
+      ucEndereco: unidadeConsumidora?.endereco || '-',
+      ucDistribuidora: unidadeConsumidora?.distribuidora || unidadeConsumidora?.concessionaria || '-',
+      ucGrupoTarifario: unidadeConsumidora?.grupo_tarifario || '-',
+      ucModalidade: unidadeConsumidora?.modalidade_tarifaria || '-',
+      ucDemandaContratada: unidadeConsumidora?.demanda_contratada || 0,
+    });
+  };
+
+  return (
+    <header className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="flex h-16 items-center justify-between px-6">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+          {subtitle && (
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Month Selector */}
+          {mesesDisponiveis.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Select value={mesAtual} onValueChange={setMesAtual}>
+                <SelectTrigger className="w-[140px] h-9">
+                  <SelectValue placeholder="Selecione o mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mesesDisponiveis.map((mes) => (
+                    <SelectItem key={mes} value={mes}>
+                      {getMonthName(mes)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Export Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Exportando...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                Exportar PDF
+              </>
+            )}
+          </Button>
+
+          {/* Notifications */}
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            {alertCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                {alertCount}
+              </span>
+            )}
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+}

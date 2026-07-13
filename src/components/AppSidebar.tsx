@@ -20,7 +20,10 @@ import {
   HardHat,
   FileSpreadsheet,
   BookOpen,
-  Wrench
+  Wrench,
+  Gauge,
+  FilePlus2,
+  Receipt
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +88,12 @@ const cadastroItems: NavItem[] = [
   { title: "Equipamentos", url: "/equipamentos", icon: Zap, allow: STAFF_BO },
   { title: "Insumos", url: "/insumos", icon: Package, allow: [...STAFF_BO, 'tecnico_campo'] },
   { title: "Kits", url: "/kits", icon: Boxes, allow: ['admin', 'backoffice'] },
+];
+
+const billingItems: NavItem[] = [
+  { title: "Dashboard Executivo", url: "/billing", icon: Gauge, allow: STAFF },
+  { title: "Lançar Dados", url: "/billing/admin/lancar", icon: FilePlus2, allow: STAFF },
+  { title: "Tarifas", url: "/billing/admin/tarifas", icon: Receipt, allow: STAFF },
 ];
 
 const systemItems: NavItem[] = [
@@ -242,6 +251,17 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {cadastroItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {billingItems.some(i => hasAnyRole(i.allow)) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Faturamento</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {billingItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
