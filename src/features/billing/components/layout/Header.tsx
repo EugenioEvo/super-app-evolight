@@ -36,10 +36,11 @@ export function Header({ title, subtitle }: HeaderProps) {
       reportTitle: 'Relatório Executivo de Energia',
       mesRef: mesFormatado,
       // Dados do cliente
-      clienteNome: cliente?.nome || 'Cliente não informado',
-      clienteCNPJ: cliente?.cnpj || '-',
-      clienteEmail: cliente?.email || '-',
-      clienteTelefone: cliente?.telefone || '-',
+      clienteNome: cliente?.empresa || 'Cliente não informado',
+      clienteCNPJ: cliente?.cnpj_cpf || '-',
+      // O schema unificado não possui campo de email em clientes
+      clienteEmail: '-',
+      clienteTelefone: cliente?.telefones_unificados || '-',
       // Dados da UC
       ucNumero: unidadeConsumidora?.numero || '-',
       ucEndereco: unidadeConsumidora?.endereco || '-',

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
+import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/features/billing/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

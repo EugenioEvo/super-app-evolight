@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
+import { supabase } from '@/integrations/supabase/client';
 
 export type TarifaConcessionaria = {
   id: string;

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface UsinaRateioMensal {
   id: string;
@@ -22,7 +22,7 @@ export interface RateioWithRelations extends UsinaRateioMensal {
   geracao?: {
     mes_ref: string;
     geracao_total_kwh: number;
-    usina_id: string;
+    ufv_id: string;
   };
   vinculo?: {
     cliente_id: string;
@@ -85,7 +85,7 @@ export const useRateioByUCMes = (ucId: string | undefined, mesRef: string | unde
           geracao:usina_geracao_mensal(
             mes_ref,
             geracao_total_kwh,
-            usina_id
+            ufv_id
           ),
           vinculo:cliente_usina_vinculo(
             cliente_id,
@@ -119,7 +119,7 @@ export const useRateiosByUC = (ucId: string | undefined) => {
           geracao:usina_geracao_mensal(
             mes_ref,
             geracao_total_kwh,
-            usina_id
+            ufv_id
           )
         `)
         .eq('uc_beneficiaria_id', ucId)

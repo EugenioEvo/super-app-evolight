@@ -55,8 +55,8 @@ export function Step0ContextoUC() {
         importedData.uc_id = matchedUC.id;
         const cliente = clientes?.find(c => c.id === matchedUC.cliente_id);
         if (cliente) {
-          importedData.cnpj = cliente.cnpj;
-          importedData.razao_social = cliente.nome;
+          importedData.cnpj = cliente.cnpj_cpf || '';
+          importedData.razao_social = cliente.empresa || '';
         }
       }
     }
@@ -91,8 +91,8 @@ export function Step0ContextoUC() {
         modalidade: uc.modalidade_tarifaria,
         demanda_contratada_kw: uc.demanda_contratada,
         demanda_geracao_kw: uc.demanda_geracao_kw || 0,
-        cnpj: cliente?.cnpj || '',
-        razao_social: cliente?.nome || '',
+        cnpj: cliente?.cnpj_cpf || '',
+        razao_social: cliente?.empresa || '',
         grupo_tarifario: grupoTarifario,
         tem_geracao_local: uc.tem_geracao_propria || false,
         classe_tarifaria: uc.classe_tarifaria || '',

@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface UsinaGeracaoMensal {
   id: string;
-  usina_id: string;
+  ufv_id: string;
   mes_ref: string;
   geracao_total_kwh: number;
   geracao_ponta_kwh: number;
@@ -27,7 +27,7 @@ export const useUsinaGeracaoMensal = (usinaId: string | undefined) => {
       const { data, error } = await supabase
         .from('usina_geracao_mensal')
         .select('*')
-        .eq('usina_id', usinaId)
+        .eq('ufv_id', usinaId)
         .order('mes_ref', { ascending: false });
 
       if (error) throw error;
@@ -70,7 +70,7 @@ export const useCreateGeracaoMensal = () => {
       return data as UsinaGeracaoMensal;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['usina_geracao_mensal', data.usina_id] });
+      queryClient.invalidateQueries({ queryKey: ['usina_geracao_mensal', data.ufv_id] });
       queryClient.invalidateQueries({ queryKey: ['usina_geracao_mensal'] });
     },
   });

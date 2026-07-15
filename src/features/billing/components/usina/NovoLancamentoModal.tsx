@@ -68,7 +68,7 @@ export function NovoLancamentoModal({
         vinculo_id: vinculo.id,
         uc_beneficiaria_id: vinculo.uc_beneficiaria_id,
         uc_numero: vinculo.unidades_consumidoras?.numero || 'N/A',
-        cliente_nome: vinculo.clientes?.nome || 'Cliente',
+        cliente_nome: vinculo.clientes?.empresa || 'Cliente',
         percentual_contratado: vinculo.percentual_rateio,
         percentual_aplicado: percentualAjustado,
         energia_alocada_kwh: energiaAlocada,
@@ -82,14 +82,14 @@ export function NovoLancamentoModal({
   // Calcular fator de capacidade
   const fatorCapacidade = useMemo(() => {
     const geracaoTotal = parseFloat(form.geracao_total_kwh) || 0;
-    const potencia = usina.potencia_instalada_kw || 0;
+    const potencia = usina.potencia_kwp || 0;
     if (potencia === 0) return null;
     
     // Assumindo 30 dias e 24 horas
     const horasMes = 30 * 24;
     const capacidadeMaxima = potencia * horasMes;
     return (geracaoTotal / capacidadeMaxima) * 100;
-  }, [form.geracao_total_kwh, usina.potencia_instalada_kw]);
+  }, [form.geracao_total_kwh, usina.potencia_kwp]);
 
   const totalRateio = rateioPreview.reduce((sum, r) => sum + r.energia_alocada_kwh, 0);
   const totalValor = rateioPreview.reduce((sum, r) => sum + r.valor_fatura_usina_rs, 0);
@@ -116,7 +116,7 @@ export function NovoLancamentoModal({
     try {
       // Criar registro de geração
       const geracao = await createGeracao.mutateAsync({
-        usina_id: usina.id,
+        ufv_id: usina.id,
         mes_ref: form.mes_ref,
         geracao_total_kwh: parseFloat(form.geracao_total_kwh),
         geracao_ponta_kwh: parseFloat(form.geracao_ponta_kwh) || 0,
@@ -180,7 +180,7 @@ export function NovoLancamentoModal({
           <div className="p-4 bg-muted rounded-lg">
             <p className="font-medium">{usina.nome}</p>
             <p className="text-sm text-muted-foreground">
-              UC Geradora: {usina.uc_geradora} • Potência: {usina.potencia_instalada_kw} kW
+              UC Geradora: {usina.uc_geradora} • Potência: {usina.potencia_kwp ?? 0} kW
             </p>
           </div>
 

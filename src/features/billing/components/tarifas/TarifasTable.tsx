@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tables } from '@/integrations/supabase/types-wegen';
+import { Tables } from '@/integrations/supabase/types';
 import { Pencil } from 'lucide-react';
 import { EditTarifaModal } from './EditTarifaModal';
 
