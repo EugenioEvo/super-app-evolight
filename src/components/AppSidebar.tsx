@@ -1,34 +1,10 @@
 import { useState, useEffect } from "react";
-import { 
-  Building2, 
-  Users, 
-  Zap, 
-  Package, 
-  Route, 
-  BarChart3, 
-  Home,
-  LogOut,
-  User,
-  ClipboardList,
-  Calendar,
-  CheckSquare,
-  TrendingUp,
-  Monitor,
-  ShieldAlert,
-  PackageCheck,
-  Boxes,
-  HardHat,
-  FileSpreadsheet,
-  BookOpen,
-  Wrench,
-  Gauge,
-  FilePlus2,
-  Receipt
-} from "lucide-react";
+import { Zap, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { SIDEBAR_SECTIONS, hasAnyRole, type NavItem, type Role } from "@/lib/navigation";
 
 import {
   Sidebar,
@@ -42,65 +18,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-type Role = 'admin' | 'engenharia' | 'supervisao' | 'lider' | 'backoffice' | 'sup_eletromecanico' | 'lider_eletromecanico' | 'tecnico_campo' | 'eletromecanico' | 'cliente';
-
-interface NavItem {
-  title: string;
-  url: string;
-  icon: any;
-  /** roles permitidas; se omitido, todas as autenticadas */
-  allow?: Role[];
-}
-
-// Líder tem as mesmas permissões que Supervisor (mesma área), apenas nomenclatura diferente.
-const STAFF: Role[] = ['admin', 'engenharia', 'supervisao', 'lider'];
-const STAFF_BO: Role[] = [...STAFF, 'backoffice'];
-const ELETRO: Role[] = ['eletromecanico', 'sup_eletromecanico', 'lider_eletromecanico'];
-
-const mainItems: NavItem[] = [
-  { title: "Dashboard", url: "/", icon: Home, allow: [...STAFF_BO, 'tecnico_campo', ...ELETRO] },
-  { title: "Meu Painel", url: "/meu-painel", icon: User, allow: ['cliente'] },
-  { title: "O&M", url: "/meu-painel/om", icon: Wrench, allow: ['cliente'] },
-  { title: "Obras", url: "/meu-painel/obras", icon: HardHat, allow: ['cliente'] },
-  { title: "Tickets", url: "/tickets", icon: Package, allow: STAFF_BO },
-  { title: "Ordens de Serviço", url: "/work-orders", icon: ClipboardList, allow: STAFF_BO },
-  { title: "RME", url: "/rme", icon: BarChart3, allow: STAFF_BO },
-  { title: "Rotas", url: "/routes", icon: Route, allow: [...STAFF_BO, 'tecnico_campo'] },
-  { title: "Agenda", url: "/agenda", icon: Calendar, allow: STAFF_BO },
-  { title: "Carga de Trabalho", url: "/carga-trabalho", icon: TrendingUp, allow: STAFF },
-  { title: "Confirmações", url: "/dashboard-presenca", icon: Monitor, allow: STAFF },
-  { title: "Aprovar RMEs", url: "/gerenciar-rme", icon: CheckSquare, allow: ['admin', 'engenharia', 'supervisao'] },
-  { title: "Validar Insumos", url: "/backoffice/insumos", icon: PackageCheck, allow: [...STAFF, 'backoffice'] },
-];
-
-const rdoItems: NavItem[] = [
-  { title: "Dashboard", url: "/rdo/dashboard", icon: Home, allow: [...STAFF, ...ELETRO] },
-  { title: "RDO", url: "/rdo", icon: FileSpreadsheet, allow: [...STAFF, ...ELETRO] },
-  { title: "Aprovar RDOs", url: "/gerenciar-rdo", icon: CheckSquare, allow: ['admin', 'engenharia', 'sup_eletromecanico'] },
-  { title: "Obras", url: "/obras", icon: HardHat, allow: [...STAFF, 'sup_eletromecanico', 'lider_eletromecanico'] },
-  { title: "Catálogo de Atividades", url: "/obra-catalogo", icon: BookOpen, allow: ['admin'] },
-];
-
-const cadastroItems: NavItem[] = [
-  { title: "Clientes", url: "/clientes", icon: Building2, allow: STAFF_BO },
-  { title: "Prestadores", url: "/prestadores", icon: Users, allow: STAFF_BO },
-  { title: "Usuários", url: "/usuarios", icon: User, allow: ['admin', 'engenharia'] },
-  { title: "Equipamentos", url: "/equipamentos", icon: Zap, allow: STAFF_BO },
-  { title: "Insumos", url: "/insumos", icon: Package, allow: [...STAFF_BO, 'tecnico_campo'] },
-  { title: "Kits", url: "/kits", icon: Boxes, allow: ['admin', 'backoffice'] },
-];
-
-const billingItems: NavItem[] = [
-  { title: "Dashboard Executivo", url: "/billing", icon: Gauge, allow: STAFF },
-  { title: "Lançar Dados", url: "/billing/admin/lancar", icon: FilePlus2, allow: STAFF },
-  { title: "Tarifas", url: "/billing/admin/tarifas", icon: Receipt, allow: STAFF },
-];
-
-const systemItems: NavItem[] = [
-  { title: "Relatórios", url: "/relatorios", icon: BarChart3, allow: STAFF_BO },
-  { title: "Auditoria", url: "/audit-logs", icon: ShieldAlert, allow: ['admin'] },
-];
-
 export function AppSidebar() {
   const { open } = useSidebar();
   const { profile, signOut } = useAuth();
@@ -111,13 +28,9 @@ export function AppSidebar() {
   const [pendingInsumosCount, setPendingInsumosCount] = useState(0);
 
   const userRoles = (profile?.roles ?? []) as Role[];
-  const hasAnyRole = (allow?: Role[]) => !allow || allow.some(r => userRoles.includes(r));
 
-  const isTecnico = userRoles.includes('tecnico_campo');
-  const isStaff = userRoles.some(r => STAFF.includes(r));
+  const isStaff = userRoles.some((r) => (['admin', 'engenharia', 'area_tecnica', 'supervisao', 'lider'] as Role[]).includes(r));
   const isBackoffice = userRoles.includes('backoffice');
-  const isSupEletro = userRoles.includes('sup_eletromecanico') || userRoles.includes('lider_eletromecanico');
-  const showCadastros = isStaff || isBackoffice || isTecnico || isSupEletro;
 
   useEffect(() => {
     if (isStaff) {
@@ -161,19 +74,28 @@ export function AppSidebar() {
       ? "bg-primary/10 text-primary font-medium border-r-2 border-primary"
       : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
 
-  const renderItem = (item: NavItem, badgeCount?: number) => (
-    <SidebarMenuItem key={item.title}>
-      <SidebarMenuButton asChild>
-        <NavLink to={item.url} className={getNavClass(item.url)}>
-          <item.icon className="h-4 w-4" />
-          {!collapsed && <span>{item.title}</span>}
-          {!collapsed && badgeCount && badgeCount > 0 && (
-            <Badge variant="destructive" className="ml-auto">{badgeCount}</Badge>
-          )}
-        </NavLink>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
+  const badgeCountFor = (item: NavItem) => {
+    if (item.badgeKey === 'rme') return pendingRMEsCount;
+    if (item.badgeKey === 'insumos') return pendingInsumosCount;
+    return undefined;
+  };
+
+  const renderItem = (item: NavItem) => {
+    const badgeCount = badgeCountFor(item);
+    return (
+      <SidebarMenuItem key={item.key}>
+        <SidebarMenuButton asChild>
+          <NavLink to={item.url} className={getNavClass(item.url)}>
+            <item.icon className="h-4 w-4" />
+            {!collapsed && <span>{item.title}</span>}
+            {!collapsed && !!badgeCount && badgeCount > 0 && (
+              <Badge variant="destructive" className="ml-auto">{badgeCount}</Badge>
+            )}
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  };
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
@@ -195,83 +117,25 @@ export function AppSidebar() {
           </div>
         </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>{userRoles.includes('cliente') && !isStaff && !isBackoffice && !isTecnico && !isSupEletro ? 'Menu' : 'RMEs'}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.filter(i => hasAnyRole(i.allow)).flatMap(item => {
-                const out: JSX.Element[] = [];
-                const badge =
-                  item.title === "Aprovar RMEs" ? pendingRMEsCount :
-                  item.title === "Validar Insumos" ? pendingInsumosCount :
-                  undefined;
-                out.push(renderItem(item, badge));
-                if (isTecnico && item.url === "/") {
-                  out.push(
-                    <SidebarMenuItem key="minhas-os">
-                      <SidebarMenuButton asChild>
-                        <NavLink to="/minhas-os" className={getNavClass("/minhas-os")}>
-                          <ClipboardList className="h-4 w-4" />
-                          {!collapsed && <span>Minhas OS</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                  out.push(
-                    <SidebarMenuItem key="minhas-devolucoes">
-                      <SidebarMenuButton asChild>
-                        <NavLink to="/minhas-devolucoes" className={getNavClass("/minhas-devolucoes")}>
-                          <PackageCheck className="h-4 w-4" />
-                          {!collapsed && <span>Minhas Devoluções</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                }
-                return out;
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {rdoItems.some(i => hasAnyRole(i.allow)) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>RDOs</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {rdoItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {showCadastros && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Cadastros</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {cadastroItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {billingItems.some(i => hasAnyRole(i.allow)) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Faturamento</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {billingItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {SIDEBAR_SECTIONS.map((section) => {
+          const visibleItems = section.items.filter((i) => hasAnyRole(userRoles, i.allow));
+          if (visibleItems.length === 0) return null;
+          return (
+            <SidebarGroup key={section.id}>
+              <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {visibleItems.map((item) => renderItem(item))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
 
         <SidebarGroup>
           <SidebarGroupLabel>Sistema</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {systemItems.filter(i => hasAnyRole(i.allow)).map(item => renderItem(item))}
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={signOut} className="text-destructive hover:text-destructive hover:bg-destructive/10">
                   <LogOut className="h-4 w-4" />

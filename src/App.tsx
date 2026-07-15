@@ -50,6 +50,7 @@ import DashboardRDO from "./pages/DashboardRDO";
 import PublicObraView from "./pages/PublicObraView";
 import { lazy, Suspense } from "react";
 import { EnergyProvider } from "@/features/billing/context/EnergyContext";
+import MonitoringPlaceholder from "./features/monitoring/pages/MonitoringPlaceholder";
 
 // Módulo de Faturamento GD (transplantado do energy-insights) — lazy loaded
 const BillingExecutiveDashboard = lazy(() => import("./features/billing/pages/ExecutiveDashboard"));
@@ -249,6 +250,12 @@ const App = () => (
                             <Route path="/audit-logs" element={
                               <ProtectedRoute roles={['admin']}>
                                 <AuditLogs />
+                              </ProtectedRoute>
+                            } />
+                            {/* Monitoramento — placeholder da fase fundacional (conteúdo real vem em fase posterior) */}
+                            <Route path="/monitoring" element={
+                              <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                <MonitoringPlaceholder />
                               </ProtectedRoute>
                             } />
                             {/* Faturamento GD (energy-insights) */}
