@@ -158,11 +158,12 @@ export default function Clientes() {
         telefone: novoCliente.telefone || null,
       });
 
+      // Schema unificado: nome -> empresa, cnpj -> cnpj_cpf, telefone -> telefones_unificados.
+      // O campo email nao existe na tabela clientes do schema unificado (validado, mas nao persistido).
       await createCliente.mutateAsync({
-        nome: validatedData.nome,
-        cnpj: formatCNPJ(validatedData.cnpj), // Store formatted
-        email: validatedData.email,
-        telefone: validatedData.telefone || null,
+        empresa: validatedData.nome,
+        cnpj_cpf: formatCNPJ(validatedData.cnpj), // Store formatted
+        telefones_unificados: validatedData.telefone || null,
       });
       toast({ title: 'Sucesso', description: 'Cliente criado com sucesso!' });
       setNovoCliente({ nome: '', cnpj: '', email: '', telefone: '' });
@@ -180,10 +181,10 @@ export default function Clientes() {
   const handleEditCliente = (cliente: Cliente) => {
     setEditCliente({
       id: cliente.id,
-      nome: cliente.nome,
-      cnpj: cliente.cnpj,
-      email: cliente.email,
-      telefone: cliente.telefone || '',
+      nome: cliente.empresa || '',
+      cnpj: cliente.cnpj_cpf || '',
+      email: '',
+      telefone: cliente.telefones_unificados || '',
     });
     setEditDialogOpen(true);
   };
@@ -202,10 +203,9 @@ export default function Clientes() {
 
       await updateCliente.mutateAsync({
         id: editCliente.id,
-        nome: validatedData.nome,
-        cnpj: formatCNPJ(validatedData.cnpj),
-        email: validatedData.email,
-        telefone: validatedData.telefone || null,
+        empresa: validatedData.nome,
+        cnpj_cpf: formatCNPJ(validatedData.cnpj),
+        telefones_unificados: validatedData.telefone || null,
       });
       toast({ title: 'Sucesso', description: 'Cliente atualizado com sucesso!' });
       setEditDialogOpen(false);
@@ -315,7 +315,7 @@ export default function Clientes() {
 
       await createVinculo.mutateAsync({
         cliente_id: clienteId,
-        usina_id: novoVinculo.usina_id,
+        ufv_id: novoVinculo.usina_id,
         uc_beneficiaria_id: novoVinculo.uc_beneficiaria_id,
         percentual_rateio: validatedData.percentual_rateio,
         energia_contratada_kwh: validatedData.energia_contratada_kwh,
@@ -355,7 +355,7 @@ export default function Clientes() {
   const handleEditVinculo = (vinculo: ClienteUsinaVinculoWithRelations) => {
     setEditVinculo({
       id: vinculo.id,
-      usina_id: vinculo.usina_id,
+      usina_id: vinculo.ufv_id,
       uc_beneficiaria_id: vinculo.uc_beneficiaria_id,
       percentual_rateio: String(vinculo.percentual_rateio),
       energia_contratada_kwh: String(vinculo.energia_contratada_kwh),
@@ -389,7 +389,7 @@ export default function Clientes() {
 
       await updateVinculo.mutateAsync({
         id: editVinculo.id,
-        usina_id: editVinculo.usina_id,
+        ufv_id: editVinculo.usina_id,
         uc_beneficiaria_id: editVinculo.uc_beneficiaria_id,
         percentual_rateio: validatedData.percentual_rateio,
         energia_contratada_kwh: validatedData.energia_contratada_kwh,
@@ -661,7 +661,7 @@ export default function Clientes() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold">{cliente.nome}</h3>
+                    <h3 className="text-lg font-semibold">{cliente.empresa}</h3>
                     {cliente.id === clienteId && hasVinculos && (
                       <Badge variant="outline" className="gap-1">
                         <Factory className="h-3 w-3" />
@@ -669,14 +669,10 @@ export default function Clientes() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">CNPJ: {cliente.cnpj}</p>
+                  <p className="text-sm text-muted-foreground">CNPJ: {cliente.cnpj_cpf}</p>
                   <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>{cliente.email}</span>
-                    {cliente.telefone && (
-                      <>
-                        <span>•</span>
-                        <span>{cliente.telefone}</span>
-                      </>
+                    {cliente.telefones_unificados && (
+                      <span>{cliente.telefones_unificados}</span>
                     )}
                   </div>
                 </div>

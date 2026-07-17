@@ -4,7 +4,7 @@ import { DashboardLayout } from '@/features/billing/components/layout/DashboardL
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { WizardProvider, useWizard, mapFaturaToWizardData } from '@/components/wizard/WizardContext';
-import type { Tables } from '@/integrations/supabase/types-wegen';
+import type { Tables } from '@/integrations/supabase/types';
 import { WizardStepper } from '@/features/billing/components/wizard/WizardStepper';
 import { Step0ContextoUC } from '@/features/billing/components/wizard/steps/Step0ContextoUC';
 import { Step1Cabecalho } from '@/features/billing/components/wizard/steps/Step1Cabecalho';

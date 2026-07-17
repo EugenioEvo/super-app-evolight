@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
+import { supabase } from '@/integrations/supabase/client';
 import { FaturaWizardData } from '@/components/wizard/WizardContext';
 import { toast } from 'sonner';
 

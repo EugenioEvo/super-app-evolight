@@ -50,6 +50,8 @@ import DashboardRDO from "./pages/DashboardRDO";
 import PublicObraView from "./pages/PublicObraView";
 import { lazy, Suspense } from "react";
 import { EnergyProvider } from "@/features/billing/context/EnergyContext";
+import MonitoringPlantsList from "./features/monitoring/pages/PlantsList";
+import MonitoringPlantDetail from "./features/monitoring/pages/PlantDetail";
 
 // Módulo de Faturamento GD (transplantado do energy-insights) — lazy loaded
 const BillingExecutiveDashboard = lazy(() => import("./features/billing/pages/ExecutiveDashboard"));
@@ -249,6 +251,17 @@ const App = () => (
                             <Route path="/audit-logs" element={
                               <ProtectedRoute roles={['admin']}>
                                 <AuditLogs />
+                              </ProtectedRoute>
+                            } />
+                            {/* Monitoramento de usinas solares */}
+                            <Route path="/monitoring" element={
+                              <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                <MonitoringPlantsList />
+                              </ProtectedRoute>
+                            } />
+                            <Route path="/monitoring/:id" element={
+                              <ProtectedRoute roles={['admin', 'engenharia', 'supervisao', 'lider']}>
+                                <MonitoringPlantDetail />
                               </ProtectedRoute>
                             } />
                             {/* Faturamento GD (energy-insights) */}

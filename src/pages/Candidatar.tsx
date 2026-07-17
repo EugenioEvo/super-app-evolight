@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Zap, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { especialidadesOptions, certificacoesOptions, experienciaOptions } from '@/features/providers';
@@ -112,11 +112,12 @@ const Candidatar = () => {
 
         <Card>
           <CardHeader className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Zap className="h-8 w-8 text-primary" />
-              <span className="text-3xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">
-                SunFlow
-              </span>
+            <div className="flex items-center justify-center mb-4">
+              <img
+                src="/images/evolight-logo.jpg"
+                alt="Evolight - energia inovadora"
+                className="h-12 w-auto"
+              />
             </div>
             <CardTitle>Candidate-se a Prestador de Serviço</CardTitle>
             <CardDescription>

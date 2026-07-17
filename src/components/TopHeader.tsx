@@ -1,4 +1,4 @@
-import { Sun, Zap, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -24,18 +24,11 @@ export const TopHeader = () => {
           <SidebarTrigger className="hover:bg-accent transition-colors" />
           
           <div className="hidden md:flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg blur-sm opacity-50"></div>
-              <div className="relative p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-                SunFlow
-              </h1>
-              <p className="text-xs text-muted-foreground">Solar O&M Control</p>
-            </div>
+            <img
+              src="/images/evolight-logo.jpg"
+              alt="Evolight"
+              className="h-8 w-auto"
+            />
           </div>
         </div>
 

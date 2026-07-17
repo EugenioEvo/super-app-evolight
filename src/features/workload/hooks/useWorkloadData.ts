@@ -194,10 +194,11 @@ export const useWorkloadData = (service: WorkloadServicePort = defaultWorkloadSe
       const mesNome = format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR });
       const doc = new jsPDF();
 
-      doc.setFillColor(245, 158, 11);
+      doc.setFillColor(10, 11, 25);
       doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(223, 184, 83);
+      doc.setFontSize(24); doc.text('EVOLIGHT', 15, 20);
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(24); doc.text('SunFlow', 15, 20);
       doc.setFontSize(12); doc.text('BI — Carga de Trabalho (Meta × Realizado)', 15, 30);
 
       doc.setTextColor(0, 0, 0);

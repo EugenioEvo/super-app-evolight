@@ -2,11 +2,12 @@ import { useState, useEffect, createContext, useContext, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-type AppRole = 'admin' | 'engenharia' | 'supervisao' | 'lider' | 'backoffice' | 'sup_eletromecanico' | 'lider_eletromecanico' | 'tecnico_campo' | 'eletromecanico' | 'cliente';
+type AppRole = 'admin' | 'area_tecnica' | 'engenharia' | 'supervisao' | 'lider' | 'backoffice' | 'sup_eletromecanico' | 'lider_eletromecanico' | 'tecnico_campo' | 'eletromecanico' | 'gerador' | 'cliente';
 
 // Ordem de prioridade para resolver a "role principal" (UI/redirect)
 // quando um usuário acumula múltiplas roles. Quanto menor o índice, maior a prioridade.
-const ROLE_PRIORITY: AppRole[] = ['admin', 'engenharia', 'supervisao', 'lider', 'backoffice', 'sup_eletromecanico', 'lider_eletromecanico', 'tecnico_campo', 'eletromecanico', 'cliente'];
+// Staff (operação) > gerador > cliente.
+const ROLE_PRIORITY: AppRole[] = ['admin', 'engenharia', 'area_tecnica', 'supervisao', 'lider', 'backoffice', 'sup_eletromecanico', 'lider_eletromecanico', 'tecnico_campo', 'eletromecanico', 'gerador', 'cliente'];
 
 const pickPrimaryRole = (roles: AppRole[]): AppRole | undefined => {
   for (const r of ROLE_PRIORITY) {

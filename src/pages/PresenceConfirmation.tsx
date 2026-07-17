@@ -121,10 +121,7 @@ const PresenceConfirmation = () => {
     <div className="min-h-screen flex flex-col bg-gradient-solar">
       {/* Header */}
       <header className="flex items-center justify-center gap-2 pt-8 pb-4">
-        <Sun className="h-8 w-8 text-primary-foreground" />
-        <span className="text-2xl font-bold text-primary-foreground tracking-tight">
-          SunFlow
-        </span>
+        <img src="/images/evolight-logo.jpg" alt="Evolight" className="h-10 w-auto rounded bg-primary-foreground/95 px-2 py-1" />
       </header>
 
       {/* Main */}
@@ -253,13 +250,13 @@ const PresenceConfirmation = () => {
           >
             {/* Receipt header */}
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#0066FF', marginBottom: 4 }}>
-                ☀ SunFlow
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#0A0B19', marginBottom: 4 }}>
+                EVOLIGHT
               </div>
               <div style={{ fontSize: 16, fontWeight: 600, color: '#555' }}>
                 Comprovante de Presença
               </div>
-              <div style={{ height: 2, background: 'linear-gradient(90deg, #0066FF, #FF9900)', margin: '12px 0' }} />
+              <div style={{ height: 2, background: 'linear-gradient(90deg, #0A0B19, #DFB853)', margin: '12px 0' }} />
             </div>
 
             {/* Receipt details */}
@@ -305,16 +302,16 @@ const PresenceConfirmation = () => {
             {verificationCode && (
               <div style={{ textAlign: 'center', marginBottom: 16 }}>
                 <span style={{ fontSize: 11, color: '#999' }}>Código de verificação: </span>
-                <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace', color: '#0066FF', letterSpacing: 2 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'monospace', color: '#0A0B19', letterSpacing: 2 }}>
                   {verificationCode}
                 </span>
               </div>
             )}
 
             {/* Footer */}
-            <div style={{ height: 2, background: 'linear-gradient(90deg, #0066FF, #FF9900)', margin: '12px 0' }} />
+            <div style={{ height: 2, background: 'linear-gradient(90deg, #0A0B19, #DFB853)', margin: '12px 0' }} />
             <div style={{ textAlign: 'center', fontSize: 11, color: '#999' }}>
-              Evolight Solar O&M
+              Evolight
             </div>
           </div>
         </div>
@@ -323,7 +320,7 @@ const PresenceConfirmation = () => {
       {/* Footer */}
       <footer className="text-center pb-6">
         <p className="text-xs text-primary-foreground/70">
-          Powered by <span className="font-semibold">SunFlow</span> · Evolight Solar O&M
+          Powered by <span className="font-semibold">Evolight</span>
         </p>
       </footer>
     </div>

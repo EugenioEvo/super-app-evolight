@@ -125,7 +125,7 @@ export default function UsinasRemotas() {
         nome: validatedData.nome,
         uc_geradora: validatedData.uc_geradora,
         cnpj_titular: formatCNPJ(validatedData.cnpj_titular),
-        potencia_instalada_kw: validatedData.potencia_instalada_kw,
+        potencia_kwp: validatedData.potencia_instalada_kw,
         fonte: validatedData.fonte,
         modalidade_gd: validatedData.modalidade_gd,
         distribuidora: validatedData.distribuidora,
@@ -151,13 +151,13 @@ export default function UsinasRemotas() {
   const handleEdit = (usina: UsinaRemota) => {
     setSelectedUsina(usina);
     setEditForm({
-      nome: usina.nome,
-      uc_geradora: usina.uc_geradora,
-      cnpj_titular: usina.cnpj_titular,
-      potencia_instalada_kw: usina.potencia_instalada_kw.toString(),
+      nome: usina.nome || '',
+      uc_geradora: usina.uc_geradora || '',
+      cnpj_titular: usina.cnpj_titular || '',
+      potencia_instalada_kw: (usina.potencia_kwp ?? 0).toString(),
       fonte: usina.fonte,
       modalidade_gd: usina.modalidade_gd,
-      distribuidora: usina.distribuidora,
+      distribuidora: usina.distribuidora || '',
       endereco: usina.endereco || '',
       data_conexao: usina.data_conexao || '',
       ativo: usina.ativo,
@@ -196,7 +196,7 @@ export default function UsinasRemotas() {
         nome: validatedData.nome,
         uc_geradora: validatedData.uc_geradora,
         cnpj_titular: formatCNPJ(validatedData.cnpj_titular),
-        potencia_instalada_kw: validatedData.potencia_instalada_kw,
+        potencia_kwp: validatedData.potencia_instalada_kw,
         fonte: validatedData.fonte,
         modalidade_gd: validatedData.modalidade_gd,
         distribuidora: validatedData.distribuidora,
@@ -479,7 +479,7 @@ export default function UsinasRemotas() {
                       <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                           <p className="text-xs text-muted-foreground">Potência</p>
-                          <p className="text-sm font-medium">{usina.potencia_instalada_kw} kW</p>
+                          <p className="text-sm font-medium">{usina.potencia_kwp ?? 0} kW</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Fonte</p>

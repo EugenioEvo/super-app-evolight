@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
-import { Tables } from '@/integrations/supabase/types-wegen';
+import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
 import {
   Dialog,
   DialogContent,

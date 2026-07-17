@@ -52,7 +52,7 @@ export default function GerenciarFaturas() {
     const uc = ucs?.find(u => u.id === ucId);
     if (!uc) return { numero: 'N/A', cliente: 'N/A' };
     const cliente = clientes?.find(c => c.id === uc.cliente_id);
-    return { numero: uc.numero, cliente: cliente?.nome || 'N/A' };
+    return { numero: uc.numero, cliente: cliente?.empresa || 'N/A' };
   };
 
   const formatMesRef = (mesRef: string) => {

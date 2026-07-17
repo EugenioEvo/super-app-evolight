@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import type { Tables } from '@/integrations/supabase/types-wegen';
+import type { Tables } from '@/integrations/supabase/types';
 import { calcularFaturaCompleta, CalculosCompletos, TarifaSimplificada } from '@/lib/billing/calculosBackground';
 import { useTarifas } from '@/hooks/useTarifas';
 
@@ -316,8 +316,8 @@ export function mapFaturaToWizardData(
     tipo_fornecimento: uc?.tipo_fornecimento || 'TRIFÁSICO',
     demanda_contratada_kw: uc?.demanda_contratada || 0,
     demanda_geracao_kw: uc?.demanda_geracao_kw || 0,
-    cnpj: uc?.clientes?.cnpj || '',
-    razao_social: uc?.clientes?.nome || '',
+    cnpj: uc?.clientes?.cnpj_cpf || '',
+    razao_social: uc?.clientes?.empresa || '',
     grupo_tarifario: (fatura.grupo_tarifario === 'A' || fatura.grupo_tarifario === 'B' ? fatura.grupo_tarifario : 'A') as GrupoTarifario,
     tem_geracao_local: uc?.tem_geracao_propria || false,
     tem_usina_remota: (fatura.credito_remoto_kwh || 0) > 0,

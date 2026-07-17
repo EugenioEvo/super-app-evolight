@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabaseWegen as supabase } from '@/integrations/supabase/client-wegen';
-import { Database } from '@/integrations/supabase/types-wegen';
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
 export type ModalidadeEconomia = Database['public']['Enums']['modalidade_economia'];
 export type ReferenciaDesconto = Database['public']['Enums']['referencia_desconto'];
@@ -8,7 +8,7 @@ export type ReferenciaDesconto = Database['public']['Enums']['referencia_descont
 export interface ClienteUsinaVinculo {
   id: string;
   cliente_id: string;
-  usina_id: string;
+  ufv_id: string;
   uc_beneficiaria_id: string;
   percentual_rateio: number;
   energia_contratada_kwh: number;
@@ -26,13 +26,15 @@ export interface ClienteUsinaVinculo {
 }
 
 export interface ClienteUsinaVinculoWithRelations extends ClienteUsinaVinculo {
+  // A relação agora aponta para cliente_ufvs; mantemos o alias "usinas_remotas"
+  // no select para não quebrar os consumidores existentes.
   usinas_remotas?: {
     id: string;
-    nome: string;
-    uc_geradora: string;
+    nome: string | null;
+    uc_geradora: string | null;
     modalidade_gd: string;
     fonte: string;
-    potencia_instalada_kw: number;
+    potencia_kwp: number | null;
   };
   unidades_consumidoras?: {
     id: string;
@@ -41,8 +43,8 @@ export interface ClienteUsinaVinculoWithRelations extends ClienteUsinaVinculo {
   };
   clientes?: {
     id: string;
-    nome: string;
-    cnpj: string;
+    empresa: string | null;
+    cnpj_cpf: string | null;
   };
 }
 
@@ -58,13 +60,13 @@ export const useVinculosByCliente = (clienteId: string | undefined) => {
         .from('cliente_usina_vinculo')
         .select(`
           *,
-          usinas_remotas (
+          usinas_remotas:cliente_ufvs (
             id,
             nome,
             uc_geradora,
             modalidade_gd,
             fonte,
-            potencia_instalada_kw
+            potencia_kwp
           ),
           unidades_consumidoras (
             id,
@@ -91,13 +93,13 @@ export const useVinculoByUC = (ucId: string | undefined) => {
         .from('cliente_usina_vinculo')
         .select(`
           *,
-          usinas_remotas (
+          usinas_remotas:cliente_ufvs (
             id,
             nome,
             uc_geradora,
             modalidade_gd,
             fonte,
-            potencia_instalada_kw
+            potencia_kwp
           )
         `)
         .eq('uc_beneficiaria_id', ucId)
@@ -122,8 +124,8 @@ export const useVinculosByUsina = (usinaId: string | undefined) => {
           *,
           clientes (
             id,
-            nome,
-            cnpj
+            empresa,
+            cnpj_cpf
           ),
           unidades_consumidoras (
             id,
@@ -131,7 +133,7 @@ export const useVinculosByUsina = (usinaId: string | undefined) => {
             endereco
           )
         `)
-        .eq('usina_id', usinaId)
+        .eq('ufv_id', usinaId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
