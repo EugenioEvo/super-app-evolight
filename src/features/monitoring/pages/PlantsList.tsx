@@ -188,6 +188,14 @@ const PlantsList = () => {
                     {plant.solarz_status && (
                       <Badge variant="outline">SolarZ: {plant.solarz_status}</Badge>
                     )}
+                    {(plant as any).monitoring_provider &&
+                      (plant as any).monitoring_provider !== 'manual' && (
+                        <Badge variant="outline" className="gap-1">
+                          <RefreshCw className="h-3 w-3" />
+                          {(plant as any).monitoring_provider}
+                          {(plant as any).sync_enabled === false && ' (pausado)'}
+                        </Badge>
+                      )}
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div>
