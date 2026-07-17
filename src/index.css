@@ -2,124 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-/* SunFlow Solar O&M Design System - All colors MUST be HSL */
+/* Evolight Design System - All colors MUST be HSL */
+/* Palette derived from public/images/evolight-logo.jpg:
+   navy wordmark ~ #0A0B19 (HSL 236 43% 7%), gold wave ~ #DFB853 (HSL 43 69% 60%) */
 
 @layer base {
   :root {
-    /* Solar Brand Colors */
-    --background: 210 40% 98%;
-    --foreground: 210 20% 15%;
+    /* Evolight Brand Colors */
+    --background: 220 25% 98%;
+    --foreground: 236 43% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 15%;
+    --card-foreground: 236 43% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 15%;
+    --popover-foreground: 236 43% 8%;
 
-    /* Solar Blue Primary */
-    --primary: 210 100% 50%;
+    /* Evolight Navy Primary */
+    --primary: 236 43% 9%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
+    --primary-glow: 236 35% 28%;
 
-    /* Solar Orange Secondary */
-    --secondary: 35 100% 60%;
-    --secondary-foreground: 0 0% 100%;
+    /* Evolight Gold Secondary */
+    --secondary: 43 69% 60%;
+    --secondary-foreground: 236 43% 9%;
 
-    /* Solar Green Success */
+    /* Success Green (functional, non-brand) */
     --success: 145 65% 45%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 210 40% 95%;
-    --muted-foreground: 215 20% 50%;
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 10% 40%;
 
-    --accent: 145 65% 45%;
-    --accent-foreground: 0 0% 100%;
+    /* Evolight Gold Accent */
+    --accent: 43 69% 60%;
+    --accent-foreground: 236 43% 9%;
 
     /* Critical/Emergency Red */
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Warning Amber */
-    --warning: 35 100% 50%;
-    --warning-foreground: 0 0% 100%;
+    /* Warning Amber (close to brand gold) */
+    --warning: 38 92% 50%;
+    --warning-foreground: 236 43% 9%;
 
-    --border: 210 30% 90%;
-    --input: 210 30% 95%;
-    --ring: 210 100% 50%;
+    --border: 220 20% 88%;
+    --input: 220 20% 94%;
+    --ring: 236 43% 20%;
 
     --radius: 0.75rem;
 
-    /* Solar Gradients */
-    --gradient-solar: linear-gradient(135deg, hsl(210 100% 50%), hsl(35 100% 60%));
-    --gradient-energy: linear-gradient(90deg, hsl(145 65% 45%), hsl(180 65% 45%));
-    --gradient-warning: linear-gradient(135deg, hsl(35 100% 60%), hsl(15 100% 55%));
-    
-    /* Solar Shadows */
-    --shadow-solar: 0 10px 30px -10px hsl(210 100% 50% / 0.3);
-    --shadow-energy: 0 8px 25px -8px hsl(145 65% 45% / 0.25);
-    --shadow-glow: 0 0 40px hsl(210 100% 70% / 0.4);
+    /* Evolight Gradients (navy -> gold) */
+    --gradient-solar: linear-gradient(135deg, hsl(236 43% 9%), hsl(43 69% 60%));
+    --gradient-energy: linear-gradient(90deg, hsl(236 43% 9%), hsl(43 60% 55%));
+    --gradient-warning: linear-gradient(135deg, hsl(43 69% 60%), hsl(38 92% 50%));
+
+    /* Evolight Shadows */
+    --shadow-solar: 0 10px 30px -10px hsl(236 43% 9% / 0.35);
+    --shadow-energy: 0 8px 25px -8px hsl(43 69% 50% / 0.3);
+    --shadow-glow: 0 0 40px hsl(43 69% 60% / 0.45);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 220 25% 98%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 236 20% 30%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 236 43% 9%;
 
     --sidebar-primary-foreground: 0 0% 98%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 43 60% 92%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent-foreground: 236 43% 9%;
 
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 220 20% 90%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 43 69% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 236 40% 6%;
+    --foreground: 220 20% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 236 35% 9%;
+    --card-foreground: 220 20% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 236 35% 9%;
+    --popover-foreground: 220 20% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 43 69% 60%;
+    --primary-foreground: 236 43% 9%;
+    --primary-glow: 43 69% 70%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 236 25% 18%;
+    --secondary-foreground: 220 20% 96%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 236 25% 15%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 43 69% 60%;
+    --accent-foreground: 236 43% 9%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --warning: 35 100% 55%;
-    --warning-foreground: 0 0% 10%;
+    --warning: 43 90% 58%;
+    --warning-foreground: 236 43% 9%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 236 25% 18%;
+    --input: 236 25% 18%;
+    --ring: 43 69% 55%;
+    --sidebar-background: 236 40% 7%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 43 69% 60%;
+    --sidebar-primary-foreground: 236 43% 9%;
+    --sidebar-accent: 236 25% 15%;
+    --sidebar-accent-foreground: 220 20% 96%;
+    --sidebar-border: 236 25% 16%;
+    --sidebar-ring: 43 69% 55%;
   }
 }
 

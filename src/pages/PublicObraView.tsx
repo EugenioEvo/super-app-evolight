@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { Building2, Calendar, MapPin, TrendingUp, ListChecks, Image as ImageIcon, FileSpreadsheet, Sun, ShieldOff } from 'lucide-react';
+import { Building2, Calendar, MapPin, TrendingUp, ListChecks, Image as ImageIcon, FileSpreadsheet, ShieldOff } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { OBRA_STATUS_LABEL } from '@/features/obras';
 
@@ -104,9 +104,8 @@ export default function PublicObraView() {
     <div className="min-h-screen bg-muted/30">
       <header className="bg-card border-b">
         <div className="container mx-auto px-4 py-3 flex items-center gap-2">
-          <div className="p-1.5 rounded-md bg-primary/10"><Sun className="h-5 w-5 text-primary" /></div>
+          <img src="/images/evolight-logo.jpg" alt="Evolight" className="h-8 w-auto" />
           <div>
-            <p className="text-sm font-semibold leading-tight">SunFlow</p>
             <p className="text-xs text-muted-foreground leading-tight">Visualização pública</p>
           </div>
         </div>

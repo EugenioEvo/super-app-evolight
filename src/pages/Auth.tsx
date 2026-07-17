@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, EyeOff, Zap } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { ForgotPasswordLink } from '@/components/ForgotPasswordLink';
+
+const EVOLIGHT_LOGO_SRC = '/images/evolight-logo.jpg';
 
 type Mode = 'login' | 'signup';
 
@@ -75,7 +77,7 @@ const Auth = () => {
         await supabase.functions.invoke('create-user-profile').catch(() => {
           /* o perfil também é criado no primeiro acesso; erro aqui não bloqueia */
         });
-        toast.success('Conta criada!', { description: 'Bem-vindo ao SunFlow.' });
+        toast.success('Conta criada!', { description: 'Bem-vindo à Evolight.' });
         navigate('/');
         return;
       }
@@ -145,14 +147,12 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="relative">
-              <Zap className="h-8 w-8 text-primary animate-pulse" />
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-              SunFlow
-            </span>
+          <div className="flex items-center justify-center mb-4">
+            <img
+              src={EVOLIGHT_LOGO_SRC}
+              alt="Evolight - energia inovadora"
+              className="h-14 w-auto"
+            />
           </div>
           <CardTitle>{mode === 'login' ? 'Entrar' : 'Criar conta'}</CardTitle>
           <CardDescription>

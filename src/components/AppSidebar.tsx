@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Zap, LogOut, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { NavLink, useLocation } from "react-router-dom";
@@ -101,18 +101,19 @@ export function AppSidebar() {
     <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-card border-r">
         <div className="p-4 border-b">
-          <div className="flex items-center space-x-3">
-            <div className="relative p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
-              <Zap className="h-6 w-6 text-white" />
-              <div className="absolute inset-0 bg-amber-400/20 rounded-lg blur"></div>
-            </div>
-            {!collapsed && (
-              <div>
-                <h2 className="font-bold text-lg bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-                  SunFlow
-                </h2>
-                <p className="text-xs text-muted-foreground">Solar O&M</p>
-              </div>
+          <div className="flex items-center justify-center">
+            {collapsed ? (
+              <img
+                src="/favicon.ico"
+                alt="Evolight"
+                className="h-8 w-8 rounded"
+              />
+            ) : (
+              <img
+                src="/images/evolight-logo.jpg"
+                alt="Evolight - energia inovadora"
+                className="h-10 w-auto"
+              />
             )}
           </div>
         </div>
