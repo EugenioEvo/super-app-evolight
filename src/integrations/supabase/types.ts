@@ -1888,6 +1888,44 @@ export type Database = {
           },
         ]
       }
+      plant_credentials: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          credentials: Json
+          id: string
+          plant_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          credentials: Json
+          id?: string
+          plant_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          credentials?: Json
+          id?: string
+          plant_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plant_credentials_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "solar_plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       presence_confirmation_attempts: {
         Row: {
           attempted_at: string
@@ -2807,6 +2845,7 @@ export type Database = {
       }
       solar_plants: {
         Row: {
+          api_site_id: string | null
           ativo: boolean
           cidade: string | null
           cliente_id: string | null
@@ -2817,15 +2856,18 @@ export type Database = {
           id: string
           marca_inversor: string | null
           modelo_inversor: string | null
+          monitoring_provider: string | null
           nome: string
           potencia_kwp: number | null
           serial_inversor: string | null
           solarz_plant_id: string | null
           solarz_status: string | null
+          sync_enabled: boolean
           ultima_sincronizacao: string | null
           updated_at: string
         }
         Insert: {
+          api_site_id?: string | null
           ativo?: boolean
           cidade?: string | null
           cliente_id?: string | null
@@ -2836,15 +2878,18 @@ export type Database = {
           id?: string
           marca_inversor?: string | null
           modelo_inversor?: string | null
+          monitoring_provider?: string | null
           nome: string
           potencia_kwp?: number | null
           serial_inversor?: string | null
           solarz_plant_id?: string | null
           solarz_status?: string | null
+          sync_enabled?: boolean
           ultima_sincronizacao?: string | null
           updated_at?: string
         }
         Update: {
+          api_site_id?: string | null
           ativo?: boolean
           cidade?: string | null
           cliente_id?: string | null
@@ -2855,11 +2900,13 @@ export type Database = {
           id?: string
           marca_inversor?: string | null
           modelo_inversor?: string | null
+          monitoring_provider?: string | null
           nome?: string
           potencia_kwp?: number | null
           serial_inversor?: string | null
           solarz_plant_id?: string | null
           solarz_status?: string | null
+          sync_enabled?: boolean
           ultima_sincronizacao?: string | null
           updated_at?: string
         }
@@ -2907,6 +2954,47 @@ export type Database = {
             columns: ["ticket_id"]
             isOneToOne: false
             referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_logs: {
+        Row: {
+          finished_at: string | null
+          id: string
+          mensagem: string | null
+          metrics_inseridas: number
+          plant_id: string
+          provider: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          mensagem?: string | null
+          metrics_inseridas?: number
+          plant_id: string
+          provider: string
+          started_at?: string
+          status: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          mensagem?: string | null
+          metrics_inseridas?: number
+          plant_id?: string
+          provider?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_logs_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "solar_plants"
             referencedColumns: ["id"]
           },
         ]
