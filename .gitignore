@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 .db-password-novo-projeto.txt
+.scheduler-secret.txt

@@ -5,7 +5,7 @@
 -- Pré-requisitos:
 --   1. Edge function monitoring-scheduler deployada com verify_jwt=false.
 --   2. Secret SCHEDULER_SECRET definido nas edge functions
---      (supabase secrets set SCHEDULER_SECRET=... --project-ref ctbvtnuwhcjtxnesthyg).
+--      (supabase secrets set SCHEDULER_SECRET=... --project-ref pvmdpbfutlililfbhkqn).
 --   3. Substituir <SCHEDULER_SECRET> abaixo pelo MESMO valor.
 
 CREATE EXTENSION IF NOT EXISTS pg_cron;
@@ -26,7 +26,7 @@ SELECT cron.schedule(
   '*/30 * * * *',
   $$
   SELECT net.http_post(
-    url := 'https://ctbvtnuwhcjtxnesthyg.supabase.co/functions/v1/monitoring-scheduler',
+    url := 'https://pvmdpbfutlililfbhkqn.supabase.co/functions/v1/monitoring-scheduler',
     headers := '{"Content-Type": "application/json", "X-Scheduler-Secret": "<SCHEDULER_SECRET>"}'::jsonb,
     body := '{"scheduled": true}'::jsonb
   ) AS request_id;
