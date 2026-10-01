@@ -1,10 +1,13 @@
-project_id = "xwbyyzvtwcsehmprsbvg"
+project_id = "pvmdpbfutlililfbhkqn"
 
 [functions.sungrow-connector]
 verify_jwt = true
 
 [functions.solaredge-connector]
 verify_jwt = true
+
+[functions.solarz-ingest]
+verify_jwt = false
 
 [functions.monitoring-scheduler]
 verify_jwt = false

@@ -123,7 +123,7 @@ export async function requireStaffOrScheduler(
   return requireStaffUser(req, supabase);
 }
 
-export type Provider = 'sungrow' | 'solaredge';
+export type Provider = 'sungrow' | 'solaredge' | 'solarz';
 
 /** Carrega a credencial ativa de uma usina para um provider. Nunca aceita credenciais via body. */
 export async function loadPlantCredentials(

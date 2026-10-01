@@ -25,3 +25,4 @@ dist-ssr
 
 .db-password-novo-projeto.txt
 .scheduler-secret.txt
+.solarz-ingest-secret.txt
