@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.db-password-novo-projeto.txt
+.scheduler-secret.txt

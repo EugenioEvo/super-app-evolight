@@ -1,10 +1,12 @@
--- 1. Atualizar categorias inválidas existentes para 'manutencao' (fallback)
+-- 1. Dropar constraint antigo de categoria ANTES do UPDATE (fix de replay:
+-- na ordem original, o UPDATE para 'manutencao' violava o check antigo,
+-- que não continha esse valor, e a migration falhava em banco novo).
+ALTER TABLE public.insumos DROP CONSTRAINT IF EXISTS insumos_categoria_check;
+
+-- 2. Atualizar categorias inválidas existentes para 'manutencao' (fallback)
 UPDATE public.insumos
 SET categoria = 'manutencao'
 WHERE categoria NOT IN ('paineis_solares', 'inversores', 'estruturas_montagem', 'cabos_conectores', 'equipamentos_medicao', 'ferramentas', 'componentes_eletricos', 'manutencao');
-
--- 2. Dropar constraint antigo de categoria
-ALTER TABLE public.insumos DROP CONSTRAINT IF EXISTS insumos_categoria_check;
 
 -- 3. Criar novo constraint com categorias corretas do domínio de energia solar
 ALTER TABLE public.insumos 

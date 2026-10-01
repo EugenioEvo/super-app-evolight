@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ import { KpiCard } from '@/features/monitoring/components/KpiCard';
 import { EmptyState } from '@/features/monitoring/components/EmptyState';
 import { MetricsChart } from '@/features/monitoring/components/MetricsChart';
 import { AlertsPanel } from '@/features/monitoring/components/AlertsPanel';
+import { SyncPanel } from '@/features/monitoring/components/SyncPanel';
 import {
   formatDate,
   formatDateTime,
@@ -156,110 +158,123 @@ const PlantDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Métricas atuais / agregados do período */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-lg font-semibold text-foreground">Métricas</h2>
-        <Select value={rangeDays} onValueChange={setRangeDays}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {RANGE_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>
-                {o.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Tabs defaultValue="visao-geral" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="visao-geral">Visão geral</TabsTrigger>
+          <TabsTrigger value="sincronizacao">Sincronização</TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          label="Geração no período"
-          value={
-            metricsQuery.isLoading
-              ? '…'
-              : `${formatNumber(aggregates?.geracaoTotalKwh ?? 0, 1)} kWh`
-          }
-          icon={BarChart3}
-        />
-        <KpiCard
-          label="Potência média"
-          value={
-            metricsQuery.isLoading
-              ? '…'
-              : aggregates?.potenciaMediaKw !== null && aggregates !== undefined
-                ? `${formatNumber(aggregates.potenciaMediaKw, 2)} kW`
-                : '—'
-          }
-          icon={Gauge}
-        />
-        <KpiCard
-          label="Eficiência média"
-          value={
-            metricsQuery.isLoading ? '…' : formatPercent(aggregates?.eficienciaMediaPercent)
-          }
-          icon={Percent}
-        />
-        <KpiCard
-          label="Potência atual"
-          value={
-            metricsQuery.isLoading
-              ? '…'
-              : aggregates?.potenciaAtualKw !== null && aggregates !== undefined
-                ? `${formatNumber(aggregates.potenciaAtualKw, 2)} kW`
-                : '—'
-          }
-          hint={
-            aggregates?.ultimaLeitura
-              ? `Leitura de ${formatDateTime(aggregates.ultimaLeitura)}`
-              : undefined
-          }
-          icon={Zap}
-        />
-      </div>
+        <TabsContent value="visao-geral" className="space-y-6">
+          {/* Métricas atuais / agregados do período */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h2 className="text-lg font-semibold text-foreground">Métricas</h2>
+            <Select value={rangeDays} onValueChange={setRangeDays}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RANGE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Gráfico de série temporal */}
-      <Card className="shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Activity className="h-4 w-4 text-primary" />
-            Geração e potência ao longo do tempo
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {metricsQuery.isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : metricsQuery.isError ? (
-            <EmptyState
-              icon={AlertTriangle}
-              title="Não foi possível carregar as métricas"
-              description="Ocorreu um erro ao buscar a série temporal. Tente novamente mais tarde."
-            />
-          ) : metrics.length === 0 ? (
-            <EmptyState
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard
+              label="Geração no período"
+              value={
+                metricsQuery.isLoading
+                  ? '…'
+                  : `${formatNumber(aggregates?.geracaoTotalKwh ?? 0, 1)} kWh`
+              }
               icon={BarChart3}
-              title="Sem métricas no período"
-              description="Nenhuma leitura registrada para esta usina no intervalo selecionado."
             />
-          ) : (
-            <MetricsChart metrics={metrics} />
-          )}
-        </CardContent>
-      </Card>
+            <KpiCard
+              label="Potência média"
+              value={
+                metricsQuery.isLoading
+                  ? '…'
+                  : aggregates?.potenciaMediaKw !== null && aggregates !== undefined
+                    ? `${formatNumber(aggregates.potenciaMediaKw, 2)} kW`
+                    : '—'
+              }
+              icon={Gauge}
+            />
+            <KpiCard
+              label="Eficiência média"
+              value={
+                metricsQuery.isLoading ? '…' : formatPercent(aggregates?.eficienciaMediaPercent)
+              }
+              icon={Percent}
+            />
+            <KpiCard
+              label="Potência atual"
+              value={
+                metricsQuery.isLoading
+                  ? '…'
+                  : aggregates?.potenciaAtualKw !== null && aggregates !== undefined
+                    ? `${formatNumber(aggregates.potenciaAtualKw, 2)} kW`
+                    : '—'
+              }
+              hint={
+                aggregates?.ultimaLeitura
+                  ? `Leitura de ${formatDateTime(aggregates.ultimaLeitura)}`
+                  : undefined
+              }
+              icon={Zap}
+            />
+          </div>
 
-      {/* Alertas da usina */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Alertas da usina</h2>
-        <AlertsPanel
-          alerts={alertsQuery.data?.alerts ?? []}
-          isLoading={alertsQuery.isLoading}
-          isError={alertsQuery.isError}
-          emptyDescription="Nenhum alerta registrado para esta usina."
-        />
-      </div>
+          {/* Gráfico de série temporal */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                Geração e potência ao longo do tempo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {metricsQuery.isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : metricsQuery.isError ? (
+                <EmptyState
+                  icon={AlertTriangle}
+                  title="Não foi possível carregar as métricas"
+                  description="Ocorreu um erro ao buscar a série temporal. Tente novamente mais tarde."
+                />
+              ) : metrics.length === 0 ? (
+                <EmptyState
+                  icon={BarChart3}
+                  title="Sem métricas no período"
+                  description="Nenhuma leitura registrada para esta usina no intervalo selecionado."
+                />
+              ) : (
+                <MetricsChart metrics={metrics} />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Alertas da usina */}
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">Alertas da usina</h2>
+            <AlertsPanel
+              alerts={alertsQuery.data?.alerts ?? []}
+              isLoading={alertsQuery.isLoading}
+              isError={alertsQuery.isError}
+              emptyDescription="Nenhum alerta registrado para esta usina."
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="sincronizacao">
+          <SyncPanel plant={plant} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

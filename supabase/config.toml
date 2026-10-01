@@ -1,5 +1,14 @@
 project_id = "xwbyyzvtwcsehmprsbvg"
 
+[functions.sungrow-connector]
+verify_jwt = true
+
+[functions.solaredge-connector]
+verify_jwt = true
+
+[functions.monitoring-scheduler]
+verify_jwt = false
+
 [functions.create-user-profile]
 verify_jwt = true
 
