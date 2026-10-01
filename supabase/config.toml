@@ -12,6 +12,30 @@ verify_jwt = false
 [functions.monitoring-scheduler]
 verify_jwt = false
 
+# Pipeline JARVIS (porte do sunflow-dev). agent-monitor é chamado por cron e
+# valida X-Scheduler-Secret no código; os demais são invocados server-to-server
+# com a service key (JWT válido), então mantêm verify_jwt.
+[functions.agent-monitor]
+verify_jwt = false
+
+[functions.jarvis-orchestrator]
+verify_jwt = true
+
+[functions.agent-dispatcher]
+verify_jwt = true
+
+[functions.agent-analista]
+verify_jwt = true
+
+[functions.agent-verificador]
+verify_jwt = true
+
+[functions.agent-relator]
+verify_jwt = true
+
+[functions.test-solarz-api]
+verify_jwt = true
+
 [functions.create-user-profile]
 verify_jwt = true
 
